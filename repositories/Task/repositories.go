@@ -1,4 +1,4 @@
-package repositories
+package Task
 
 import (
 	"arifthalhah/sigesit-bot/v2/database"

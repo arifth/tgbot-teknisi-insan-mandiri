@@ -1,8 +1,10 @@
 package repositories
 
 import (
+	"arifthalhah/sigesit-bot/v2/models"
 	"context"
 	"google.golang.org/api/sheets/v4"
+	"time"
 
 	//"context"
 	"encoding/json"
@@ -56,8 +58,8 @@ func Init() *sheets.Service {
 
 }
 
-func GetCellValue(srv *sheets.Service, spreadsheetId string) (interface{}, error) {
-	values, err := srv.Spreadsheets.Values.Get(spreadsheetId, "Sheet1!A2:E7").Do()
+func GetCellValue(srv *sheets.Service, spreadsheetId string, sheet string, rng string) (interface{}, error) {
+	values, err := srv.Spreadsheets.Values.Get(spreadsheetId, fmt.Sprintf("%v!%v", sheet, rng)).Do()
 
 	if err != nil {
 		return nil, err
@@ -69,8 +71,24 @@ func GetCellValue(srv *sheets.Service, spreadsheetId string) (interface{}, error
 	return values.Values, nil
 }
 
-func InsertIntoSheet(srv *sheets.Service, spreadsheetId string, data []string) (*sheets.AppendValuesResponse, error) {
+func InsertIntoSheet(srv *sheets.Service, spreadsheetId string, sheet string, rng string, data []string) (*sheets.AppendValuesResponse, error) {
 
+	date := time.Now()
+	Task := models.Job{
+		Created_at: date.Format((time.ANSIC)),
+	}
+	for key, _ := range data {
+		switch key {
+		case 1:
+			Task.CounterMachine = data[key]
+			break
+		case 2:
+			break
+		case len(data) - 1:
+			Task.Created_by = data[len(data)-1]
+		}
+	}
+	fmt.Println(Task)
 	valueRange := &sheets.ValueRange{
 		Values: [][]interface{}{},
 	}
@@ -81,15 +99,11 @@ func InsertIntoSheet(srv *sheets.Service, spreadsheetId string, data []string) (
 	}
 	valueRange.Values = append(valueRange.Values, newRow)
 
-	result, err := srv.Spreadsheets.Values.Append(spreadsheetId, "Sheet1!A1:M1", valueRange).ValueInputOption("RAW").Do()
+	result, err := srv.Spreadsheets.Values.Append(spreadsheetId, fmt.Sprintf("%v!%v", sheet, rng), valueRange).ValueInputOption("RAW").Do()
 
 	if err != nil {
 		return nil, err
 	}
-
-	//for _, value := range result.TableRange {
-	//	fmt.Println(value)
-	//}
 
 	return result, nil
 }
