@@ -73,7 +73,7 @@ func RequestToChannel(chatID string, message string, messageID string) string {
 
 func IsMatchFormat(str string) (bool, []string, string) {
 	keyValue := strings.Split(str, "\n")
-	if len(keyValue) == 0 {
+	if len(keyValue) < 15 {
 		return false, nil, ""
 	}
 	template := strings.Split(templates.RepliesToCreateNewTask(), "\n")

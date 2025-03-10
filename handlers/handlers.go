@@ -37,14 +37,6 @@ func Init(bot *tgbotapi.BotAPI) {
 		if update.Message == nil {
 			continue
 		}
-		if update.CallbackQuery != nil {
-			Callbacks(bot, update)
-		} else if update.Message.IsCommand() {
-			Commands(bot, update)
-		}
-		if update.Message.Text != "" {
-			continue
-		}
 		isValid, data, reason := utils.IsMatchFormat(update.Message.Text)
 		if isValid {
 			if err := services.AppendNewTask(bot, update, data); err != nil {
@@ -57,6 +49,12 @@ func Init(bot *tgbotapi.BotAPI) {
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, reason)
 			bot.Send(msg)
 		}
+		if update.CallbackQuery != nil {
+			Callbacks(bot, update)
+		} else if update.Message.IsCommand() {
+			Commands(bot, update)
+		}
+
 	}
 
 }
