@@ -4,17 +4,17 @@ import (
 	"arifthalhah/sigesit-bot/v2/config"
 	"arifthalhah/sigesit-bot/v2/keyboards"
 	"arifthalhah/sigesit-bot/v2/repositories"
+	"arifthalhah/sigesit-bot/v2/repositories/Task"
 	"arifthalhah/sigesit-bot/v2/templates"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
-	"strings"
+	"time"
 )
 
 func Start(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
-	text := templates.RepliesSuccess()
+	text := templates.RepliesToCreateNewTask()
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
-	msg.ReplyMarkup = keyboards.CmdKeyboard()
 	if _, err := bot.Send(msg); err != nil {
 		panic(err)
 	}
@@ -22,7 +22,6 @@ func Start(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 
 func AppendNewTaskCommand(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	//TODO: add validation for user before inserting data to sheet
-	//hasUser := repositories.GetCellValue()
 	text := templates.RepliesToCreateNewTask()
 
 	parsedData := update.Message.Chat
@@ -36,19 +35,22 @@ func AppendNewTaskCommand(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	}
 }
 
-func AppendNewTask(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
+func AppendNewTask(bot *tgbotapi.BotAPI, update tgbotapi.Update, data []string) error {
+	currentTime := time.Now()
+	parsedTime := currentTime.Format("2006-01-02")
+	currentMinute := currentTime.Minute()
+	currentHour := currentTime.Hour()
+	jamTanggal := fmt.Sprintf("%d.%d", currentHour, currentMinute)
 	srv := repositories.Init()
-	rawData := update.Message.Text
-	text := templates.RepliesSuccesInsertDataToSheet()
-
-	parsedData := strings.Split(rawData, "\n")
-	response, err := repositories.InsertIntoSheet(srv, config.Config("SPREADSHEET_ID"), parsedData)
+	text := templates.RepliesSuccesInsertDataToSheet("1YmGqhsOevLcCzAKDrb0eAD-MCNqd9N548FvL6Fdmss8")
+	data = append([]string{parsedTime, jamTanggal, update.SentFrom().UserName}, data...)
+	fmt.Println(data)
+	response, err := repositories.InsertIntoSheet(srv, config.Config("SPREADSHEET_ID"), config.Config("SHEETS_ID"), "A2:N2", data)
 	if err != nil {
-		log.Fatal("cannot insert into sheet")
+		log.Fatal("cannot insert into sheet", err)
 	}
 	if response.HTTPStatusCode == 200 {
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
-		//msg.ReplyMarkup = keyboards.CmdKeyboard()
 		if _, err := bot.Send(msg); err != nil {
 			return err
 		}
@@ -76,7 +78,7 @@ func SetTask(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 func SetTaskCallback(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	text := "Todo successfully created"
 
-	err := repositories.SetTask(update)
+	err := Task.SetTask(update)
 	if err != nil {
 		text = "Couldnt set task"
 	}
@@ -88,7 +90,7 @@ func SetTaskCallback(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 }
 
 func DeleteTask(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
-	data, _ := repositories.GetAllTasks(update.Message.Chat.ID)
+	data, _ := Task.GetAllTasks(update.Message.Chat.ID)
 	var btns []tgbotapi.InlineKeyboardButton
 	for i := 0; i < len(data); i++ {
 		btn := tgbotapi.NewInlineKeyboardButtonData(data[i].Task, "delete_task="+data[i].ID.String())
@@ -120,7 +122,7 @@ func DeleteTask(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 func DeleteTaskCallback(bot *tgbotapi.BotAPI, update tgbotapi.Update, taskId string) {
 	text := "Task successfully deleted"
 
-	err := repositories.DeleteTask(taskId)
+	err := Task.DeleteTask(taskId)
 	if err != nil {
 		text = "Couldnt delete task"
 	}
@@ -134,7 +136,7 @@ func DeleteTaskCallback(bot *tgbotapi.BotAPI, update tgbotapi.Update, taskId str
 func ShowAllTasks(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	text := "Tasks: \n"
 
-	tasks, err := repositories.GetAllTasks(update.Message.Chat.ID)
+	tasks, err := Task.GetAllTasks(update.Message.Chat.ID)
 	if err != nil {
 		text = "Couldnt get tasks"
 	}
