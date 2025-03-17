@@ -12,7 +12,7 @@ import (
 func Commands(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	switch update.Message.Command() {
 	case "start":
-		services.Start(bot, update)
+		services.StartCommand(bot, update)
 	case "buat_task":
 		services.AppendNewTaskCommand(bot, update)
 	}
@@ -42,7 +42,8 @@ func Init(bot *tgbotapi.BotAPI) {
 			if err := services.AppendNewTask(bot, update, data); err != nil {
 				fmt.Println("cannot insert into google sheets", err)
 			}
-			repliesToChan := templates.RepliesToChannel(update.SentFrom().UserName)
+			userName := fmt.Sprintf("%s %s", update.Message.From.FirstName, update.Message.From.LastName)
+			repliesToChan := templates.RepliesToChannel(userName)
 			message := utils.RequestToChannel(strconv.FormatInt(-1002294546372, 10), repliesToChan, "44")
 			fmt.Println(message)
 		} else {

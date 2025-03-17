@@ -39,7 +39,7 @@ func RepliesToChannel(user string) string {
 }
 
 func RepliesSuccesInsertDataToSheet(spreadSheetId string) string {
-	return fmt.Sprint("Berhasil masukkan Data🫡, \n silahkan Cek di https://docs.google.com/spreadsheets/d/", spreadSheetId)
+	return fmt.Sprint("Berhasil masukkan Data🫡, \n Untuk Update Teknisi Bisa ke Grup Ini https://t.me/2294546372/44 \n silahkan Cek di https://docs.google.com/spreadsheets/d/", spreadSheetId)
 }
 
 func RepliesSuccess() string {
