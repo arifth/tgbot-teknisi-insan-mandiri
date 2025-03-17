@@ -26,4 +26,6 @@ for PLATFORM in "${PLATFORMS[@]}"; do
     go build -o "dist/tg_bot_insan_mandiri-$GOOS-$GOARCH$BIN_EXT"
 done
 
+ls -la 
+
 echo "Build completed."
