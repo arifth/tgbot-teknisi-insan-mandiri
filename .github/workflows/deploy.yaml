@@ -16,16 +16,16 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '^1.23.3'
+          go-version: '^1.23'
 
       - name: Build Go binary
         run: |
-          go build -o tgbot ./...
+          go build -o tgbinary ./...
 
       - name: Store Binary and Configs
         run: |
           mkdir deploy_files
-          cp tgbot deploy_files/
+          cp tgbinary deploy_files/
           echo "${{ secrets.ENV_FILE }}" > deploy_files/.env
           echo "${{ secrets.KEYS_JSON }}" > deploy_files/keys.json
 
@@ -46,7 +46,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /path/to/remote/directory/
-            nohup ./tgbot > output.log 2>&1 & # run in background with logging
+            nohup ./tgbinary > output.log 2>&1 & # run in background with logging
             sleep 5 # give time for the binary to start
 
       - name: Test Binary (curl)
