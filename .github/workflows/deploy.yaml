@@ -36,7 +36,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "deploy_files/*"
-          target: "/opt"
+          target: "/home/arifth/opt"
 
       - name: Remote SSH Command (Start Binary)
         uses: appleboy/ssh-action@v1.0.0
@@ -45,7 +45,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /opt
+            cd /home/arifth/opt
             nohup ./tg_bot_insan_mandiri > output.log 2>&1 & # run in background with logging
             sleep 5 # give time for the binary to start
 
