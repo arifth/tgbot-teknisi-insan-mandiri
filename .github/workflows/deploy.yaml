@@ -25,7 +25,7 @@ jobs:
       - name: Store Binary and Configs
         run: |
           mkdir deploy_files
-          pwd && cd dist && cp tg_bot_insan_mandiri deploy_files/
+          cp tg_bot_insan_mandiri deploy_files/tg_bot_insan_mandiri
           echo "${{ secrets.ENV_FILE }}" > deploy_files/.env
           echo "${{ secrets.KEYS_JSON }}" > deploy_files/keys.json
 
