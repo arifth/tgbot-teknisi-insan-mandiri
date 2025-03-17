@@ -1,7 +1,7 @@
 name: Build, Deploy, and Test Go Project
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
@@ -62,5 +62,5 @@ jobs:
               exit 1
             fi
 
-env:
-  GO111MODULE: on
+    env:
+      GO111MODULE: on
