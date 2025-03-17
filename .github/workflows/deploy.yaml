@@ -20,7 +20,7 @@ jobs:
 
       - name: Build Go binary
         run: |
-          go build -o tgbinary 
+          chmod 777 ./build.sh && ./build.sh
 
       - name: Store Binary and Configs
         run: |
