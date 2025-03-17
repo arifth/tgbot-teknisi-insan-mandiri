@@ -9,10 +9,38 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
-	"time"
 )
 
-func Start(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
+func AppendNewTask(bot *tgbotapi.BotAPI, update tgbotapi.Update, data []string) error {
+	//variable initiation
+	dateTime := update.Message.Time()
+	parsedTime := dateTime.Format("02/01/2006")
+	hourMinute := dateTime.Format("15:04 MST")
+	userName := fmt.Sprintf("%s %s", update.Message.From.FirstName, update.Message.From.LastName)
+	text := templates.RepliesSuccesInsertDataToSheet(config.Config("SPREADSHEET_ID"))
+
+	//initiate Sheets service
+	srv := repositories.Init()
+
+	//Add data from defined user and jam
+	data = append([]string{parsedTime, hourMinute, userName}, data...)
+	response, err := repositories.InsertIntoSheet(srv, config.Config("SPREADSHEET_ID"), config.Config("SHEETS_ID"), "A2:N2", data)
+	if err != nil {
+		log.Fatal("cannot insert into sheet", err)
+	}
+	if response.HTTPStatusCode == 200 {
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
+		if _, err := bot.Send(msg); err != nil {
+			return err
+		}
+	}
+
+	sheetID := repositories.GetSheetID(srv, config.Config("SPREADSHEET_ID"), config.Config("SHEETS_ID"))
+	fmt.Println(sheetID)
+	return nil
+}
+
+func StartCommand(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	text := templates.RepliesToCreateNewTask()
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
 	if _, err := bot.Send(msg); err != nil {
@@ -33,29 +61,6 @@ func AppendNewTaskCommand(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	if _, err := bot.Send(msg); err != nil {
 		panic(err)
 	}
-}
-
-func AppendNewTask(bot *tgbotapi.BotAPI, update tgbotapi.Update, data []string) error {
-	currentTime := time.Now()
-	parsedTime := currentTime.Format("2006-01-02")
-	currentMinute := currentTime.Minute()
-	currentHour := currentTime.Hour()
-	jamTanggal := fmt.Sprintf("%d.%d", currentHour, currentMinute)
-	srv := repositories.Init()
-	text := templates.RepliesSuccesInsertDataToSheet("1YmGqhsOevLcCzAKDrb0eAD-MCNqd9N548FvL6Fdmss8")
-	data = append([]string{parsedTime, jamTanggal, update.SentFrom().UserName}, data...)
-	fmt.Println(data)
-	response, err := repositories.InsertIntoSheet(srv, config.Config("SPREADSHEET_ID"), config.Config("SHEETS_ID"), "A2:N2", data)
-	if err != nil {
-		log.Fatal("cannot insert into sheet", err)
-	}
-	if response.HTTPStatusCode == 200 {
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
-		if _, err := bot.Send(msg); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func CreateNewTask(bot *tgbotapi.BotAPI, update tgbotapi.Update) {

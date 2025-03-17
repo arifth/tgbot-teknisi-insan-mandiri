@@ -1,0 +1,66 @@
+name: Build, Deploy, and Test Go Project
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build_deploy_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '^1.23.3'
+
+      - name: Build Go binary
+        run: |
+          go build -o tgbot ./...
+
+      - name: Store Binary and Configs
+        run: |
+          mkdir deploy_files
+          cp tgbot deploy_files/
+          echo "${{ secrets.ENV_FILE }}" > deploy_files/.env
+          echo "${{ secrets.KEYS_JSON }}" > deploy_files/keys.json
+
+      - name: Deploy to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "deploy_files/*"
+          target: "/path/to/remote/directory/"
+
+      - name: Remote SSH Command (Start Binary)
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /path/to/remote/directory/
+            nohup ./tgbot > output.log 2>&1 & # run in background with logging
+            sleep 5 # give time for the binary to start
+
+      - name: Test Binary (curl)
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            curl localhost:5000 # or the appropriate port
+            if [ $? -ne 0 ]; then
+              echo "curl failed. Check output.log"
+              exit 1
+            fi
+
+env:
+  GO111MODULE: on

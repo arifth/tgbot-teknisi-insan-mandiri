@@ -107,3 +107,20 @@ func InsertIntoSheet(srv *sheets.Service, spreadsheetId string, sheet string, rn
 
 	return result, nil
 }
+
+// Helper function to get the sheet ID from the sheet name
+func GetSheetID(srv *sheets.Service, spreadsheetID, sheetName string) int64 {
+	resp, err := srv.Spreadsheets.Get(spreadsheetID).Do()
+	if err != nil {
+		log.Fatalf("Unable to retrieve spreadsheet: %v", err)
+	}
+
+	for _, sheet := range resp.Sheets {
+		if sheet.Properties.Title == sheetName {
+			return sheet.Properties.SheetId
+		}
+	}
+
+	log.Fatalf("Sheet not found: %s", sheetName)
+	return -1 // Should not reach here
+}
