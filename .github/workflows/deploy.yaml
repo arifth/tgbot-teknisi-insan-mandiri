@@ -25,7 +25,7 @@ jobs:
       - name: Store Binary and Configs
         run: |
           mkdir deploy_files
-          cp tgbinary deploy_files/
+          cp .dist/tg_bot_insan_mandiri deploy_files/
           echo "${{ secrets.ENV_FILE }}" > deploy_files/.env
           echo "${{ secrets.KEYS_JSON }}" > deploy_files/keys.json
 
@@ -46,7 +46,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /path/to/remote/directory/
-            nohup ./tgbinary > output.log 2>&1 & # run in background with logging
+            nohup ./tg_bot_insan_mandiri > output.log 2>&1 & # run in background with logging
             sleep 5 # give time for the binary to start
 
       - name: Test Binary (curl)
