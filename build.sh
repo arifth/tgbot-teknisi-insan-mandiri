@@ -23,7 +23,7 @@ for PLATFORM in "${PLATFORMS[@]}"; do
     fi
 
     # Build the executable
-    go build -o "dist/tg_bot_insan_mandiri"
+    go build -o "tg_bot_insan_mandiri"
 done
 
 ls -la 
