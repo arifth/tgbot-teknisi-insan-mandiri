@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the list of target platforms
-PLATFORMS=("darwin-amd64" "linux-386" "linux-amd64" "windows-386" "windows-amd64")
+PLATFORMS=("linux-amd64")
 
 # Create the dist directory if it doesnt exist
 mkdir -p dist
