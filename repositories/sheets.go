@@ -65,9 +65,6 @@ func GetCellValue(srv *sheets.Service, spreadsheetId string, sheet string, rng s
 		return nil, err
 	}
 
-	for _, value := range values.Values {
-		fmt.Println(value)
-	}
 	return values.Values, nil
 }
 
@@ -88,7 +85,6 @@ func InsertIntoSheet(srv *sheets.Service, spreadsheetId string, sheet string, rn
 			Task.Created_by = data[len(data)-1]
 		}
 	}
-	fmt.Println(Task)
 	valueRange := &sheets.ValueRange{
 		Values: [][]interface{}{},
 	}

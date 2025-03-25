@@ -4,10 +4,10 @@ import (
 	"arifthalhah/sigesit-bot/v2/clients"
 	"arifthalhah/sigesit-bot/v2/config"
 	"arifthalhah/sigesit-bot/v2/handlers"
-	"log"
-
+	"arifthalhah/sigesit-bot/v2/logger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	l "log"
 )
 
 // source https://go-telegram-bot-api.dev/getting-started/
@@ -19,5 +19,6 @@ func main() {
 	}))
 	bot := clients.Init()
 	handlers.Init(bot)
-	log.Fatal(app.Listen(":" + config.Config("PORT")))
+	logger.NewLogger()
+	l.Fatal(app.Listen(":" + config.Config("PORT")))
 }
