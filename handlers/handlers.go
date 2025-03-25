@@ -1,12 +1,12 @@
 package handlers
 
 import (
+	"arifthalhah/sigesit-bot/v2/config"
 	"arifthalhah/sigesit-bot/v2/services"
 	"arifthalhah/sigesit-bot/v2/templates"
 	"arifthalhah/sigesit-bot/v2/utils"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"strconv"
 )
 
 func Commands(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
@@ -44,8 +44,10 @@ func Init(bot *tgbotapi.BotAPI) {
 			}
 			userName := fmt.Sprintf("%s %s", update.Message.From.FirstName, update.Message.From.LastName)
 			repliesToChan := templates.RepliesToChannel(userName)
-			message := utils.RequestToChannel(strconv.FormatInt(-1002294546372, 10), repliesToChan, "44")
-			fmt.Println(message)
+			pekanbaru := config.Config("GROUP_CHANNEL_ID")
+			groupID := config.Config("GROUP_ID")
+			utils.RequestToChannel(groupID, repliesToChan, pekanbaru)
+
 		} else {
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, reason)
 			bot.Send(msg)

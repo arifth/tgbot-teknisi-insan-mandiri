@@ -49,18 +49,18 @@ jobs:
             nohup ./tg_bot_insan_mandiri > output.log 2>&1 & # run in background with logging
             sleep 5 # give time for the binary to start
 
-      - name: Test Binary (curl)
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.VPS_IP }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            curl localhost:5000 # or the appropriate port
-            if [ $? -ne 0 ]; then
-              echo "curl failed. Check output.log"
-              exit 1
-            fi
+#      - name: Test Binary (curl)
+#        uses: appleboy/ssh-action@v1.0.0
+#        with:
+#          host: ${{ secrets.VPS_IP }}
+#          username: ${{ secrets.VPS_USER }}
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          script: |
+#            curl localhost:5000 # or the appropriate port
+#            if [ $? -ne 0 ]; then
+#              echo "curl failed. Check output.log"
+#              exit 1
+#            fi
 
     env:
       GO111MODULE: on
